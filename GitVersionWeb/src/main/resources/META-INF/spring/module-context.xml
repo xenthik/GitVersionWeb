@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+  xmlns:task="http://www.springframework.org/schema/task" xmlns="http://www.springframework.org/schema/beans"
+  xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+  <context:component-scan base-package="shared.util" />
+
+  <task:annotation-driven />
+
+  <context:property-placeholder
+    location="classpath:config.properties,file:${user.home}/project_prop/config.properties"
+    order="1" ignore-resource-not-found="true" ignore-unresolvable="true" />
+
+  <context:property-placeholder
+    location="classpath:service-endpoint.properties,file:${user.home}/project_prop/service-endpoint.properties"
+    order="2" ignore-resource-not-found="true" />
+
+  <bean id="applicationContextProvider" class="shared.util.common.ApplicationContextProvider" />
+
+  <bean id="propertiesLoaderUtil" class="shared.util.config.PropertiesLoaderUtil">
+    <property name="location" value="file:${user.home}/project_prop/service-endpoint.properties" />
+    <property name="ignoreResourceNotFound" value="true" />
+  </bean>
+  <bean id="configPropertiesLoaderUtil" class="shared.util.config.PropertiesLoaderUtil">
+    <property name="location" value="file:${user.home}/project_prop/config.properties"/>
+    <property name="ignoreResourceNotFound" value="true"/>
+  </bean>
+
+</beans>

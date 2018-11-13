@@ -5,7 +5,40 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>war</packaging>
   <build>
-    <sourceDirectory>src</sourceDirectory>
+  <finalName>GitVersionWeb</finalName>  
+  
+  <pluginManagement>
+        <plugins>
+            <!--This plugin's configuration is used to store Eclipse 
+                m2e settings only. It has no influence on the Maven build itself. -->
+            <plugin>
+                <groupId>org.eclipse.m2e</groupId>
+                <artifactId>lifecycle-mapping</artifactId>
+                <version>1.0.0</version>
+                <configuration>
+                    <lifecycleMappingMetadata>
+                        <pluginExecutions>
+                            <pluginExecution>
+                                <pluginExecutionFilter>
+                                    <groupId>org.codehaus.mojo</groupId>
+                                    <artifactId>aspectj-maven-plugin</artifactId>
+                                    <versionRange>[1.0,)</versionRange>
+                                    <goals>
+                                        <goal>test-compile</goal>
+                                        <goal>compile</goal>
+                                    </goals>
+                                </pluginExecutionFilter>
+                                <action>
+                                    <execute />
+                                </action>
+                            </pluginExecution>
+                        </pluginExecutions>
+                    </lifecycleMappingMetadata>
+                </configuration>
+            </plugin>
+        </plugins>
+    </pluginManagement>
+    
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -15,13 +48,98 @@
           <target>1.8</target>
         </configuration>
       </plugin>
-      <plugin>
+     <!--  <plugin>
         <artifactId>maven-war-plugin</artifactId>
         <version>3.0.0</version>
         <configuration>
           <warSourceDirectory>WebContent</warSourceDirectory>
         </configuration>
-      </plugin>
+      </plugin> -->
     </plugins>
   </build>
+  
+  
+  <properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<spring.version>4.3.5.RELEASE</spring.version>
+		<timestamp>${maven.build.timestamp}</timestamp>
+		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+	</properties>
+  
+  <dependencies>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>jsp-api</artifactId>
+			<version>2.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.version}</version>
+		</dependency>		
+	</dependencies>
+	
+	<profiles>
+	<profile>
+			<id>service</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.gmaven</groupId>
+						<artifactId>gmaven-plugin</artifactId>
+						<version>1.5</version>
+						<executions>
+							<execution>
+								<phase>initialize</phase>
+								<goals>
+									<goal>execute</goal>
+								</goals>
+								<configuration>
+									<source>
+										def process = 'git name-rev --name-only HEAD'.execute()
+										process.waitFor()
+										project.properties.gitBranch = process.in.text
+										def process1 = 'git log -1 --oneline'.execute()
+										process1.waitFor()
+										project.properties.gitCommit = process1.in.text
+									</source>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<version>3.0.0</version>
+						<configuration>
+							<webResources>
+								<resource>
+									<directory>${project.basedir}/src/main/webapp</directory>
+									<filtering>true</filtering>
+									<includes>
+										<include>version.jsp</include>
+									</includes>
+								</resource>
+							</webResources>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
